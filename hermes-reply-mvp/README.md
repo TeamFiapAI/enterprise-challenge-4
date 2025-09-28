@@ -1,4 +1,4 @@
-# Hermes Reply – Entrega 4 (MVP Integrado) – PR1→PR5
+# Hermes Reply – Entrega 4 (MVP Integrado)
 
 MVP ponta-a-ponta **simulador → ingestão (FastAPI) → SQLite → ML (scikit-learn) → Dashboard (Streamlit + alertas)**.
 
