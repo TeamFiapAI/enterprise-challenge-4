@@ -42,6 +42,17 @@ src/
 
 ## 🔧 Como Executar
 ### SISTEMA (Python)
+
+### Alterar
+```
+...\config\config.json
+{
+    "ORACLE_USER": "RM001122",
+    "ORACLE_PASSWORD": "------",
+    "ORACLE_DSN": "oracle.fiap.com.br:1521/ORCL"
+}
+```
+
 ```
 Windows
  > python -m venv venv
@@ -49,3 +60,5 @@ Windows
  > pip install -r requirements.txt
 ```
 ![alt text](./assets/windows.png)
+
+### Abra navegador: http://localhost:8000/docs
