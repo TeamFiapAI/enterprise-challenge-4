@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn
+python-telegram-bot==20.6
+oracledb
+pydantic
+asyncio
+matplotlib
+seaborn

@@ -1,0 +1,3 @@
+DROP TABLE registros CASCADE CONSTRAINTS;
+DROP TABLE operadores;
+DROP TABLE maquinas;

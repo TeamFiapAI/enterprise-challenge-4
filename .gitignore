@@ -1,0 +1,32 @@
+# Arquivos de ambiente virtual
+venv/
+.venv/
+env/
+.env/
+
+# Arquivos de cache de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos e pastas de compilação
+build/
+dist/
+*.egg-info/
+
+# Arquivos de configuração de IDE/Editor
+.vscode/
+.idea/
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+
+# Arquivos de teste e resultado
+.pytest_cache/
+.mypy_cache/
+
+# Outros arquivos comuns
+.env
+.DS_Store
