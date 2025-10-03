@@ -1,7 +1,6 @@
 import oracledb
 import os
 import json
-from datetime import datetime
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 CONFIG_PATH = os.path.join(BASE_PATH, "config", "config.json")
@@ -132,15 +131,7 @@ def executar_insert():
         if conn:
             conn.close()
 
-def salvar_registros_fakes(registros, arquivo_sql=None):
-    """
-    Recebe registros fakes já gerados e salva no Oracle.
-    Também pode gerar arquivo SQL para log.
-    """
-    f = None
-    if arquivo_sql:
-        f = open(arquivo_sql, "w", encoding="utf-8")
-
+def salvar_registros_fakes(registros):
     conn = None
     try:
         conn = get_conn()
@@ -169,9 +160,6 @@ def salvar_registros_fakes(registros, arquivo_sql=None):
 
             conn.commit()
         print(f"{len(registros)} registros inseridos com sucesso!")
-        if arquivo_sql:
-            print(f"Script SQL salvo em '{arquivo_sql}'")
-
     except Exception as e:
         if conn:
             conn.rollback()

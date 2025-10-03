@@ -25,7 +25,7 @@ def popular_base():
 def popular_base_fake():
     try:
         registros = gerar_registros_fakes(1000)
-        salvar_registros_fakes(registros, arquivo_sql="scripts/registros_mock.sql")
+        salvar_registros_fakes(registros)
         return {"status": "ok", "mensagem": "Registros Criados com sucesso!"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

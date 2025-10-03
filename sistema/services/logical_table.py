@@ -37,7 +37,7 @@ def gerar_registros_fakes(qtd=1):
 
     return registros
 
-def gerar_registros_esp32(payload: dict, qtd: int = 1):
+def completar_registros_esp32(payload: dict, qtd: int = 1):
     registros = []
 
     for _ in range(qtd):

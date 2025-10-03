@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from services.logical_table import gerar_registros_esp32
+from services.logical_table import completar_registros_esp32
 from repository.oracle import inserir_registros_esp32
 
 
@@ -17,7 +17,7 @@ class Esp32Payload(BaseModel):
 
 @router.post("/")
 def receber_dados(sensor: Esp32Payload):
-    registros = gerar_registros_esp32(sensor.model_dump(), qtd=1)
+    registros = completar_registros_esp32(sensor.model_dump(), qtd=1)
     inserir_registros_esp32(registros)
     return {
         "status": "ok",
