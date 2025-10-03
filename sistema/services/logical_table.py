@@ -7,12 +7,7 @@ start_date = datetime(2024, 1, 1)
 end_date = datetime(2025, 1, 1)
 delta_total = end_date - start_date
 
-def gerar_registros_fakes(qtd=1000):
-    """
-    Gera uma lista de dicionários representando registros fakes,
-    sem tocar no banco.
-    """
-
+def gerar_registros_fakes(qtd=1):
     registros = []
 
     for _ in range(qtd):

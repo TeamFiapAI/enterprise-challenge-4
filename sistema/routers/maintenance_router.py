@@ -24,7 +24,7 @@ def popular_base():
 @router.post("/fake")
 def popular_base_fake():
     try:
-        registros = gerar_registros_fakes(500)
+        registros = gerar_registros_fakes(1000)
         salvar_registros_fakes(registros, arquivo_sql="scripts/registros_mock.sql")
         return {"status": "ok", "mensagem": "Registros Criados com sucesso!"}
     except Exception as e:
