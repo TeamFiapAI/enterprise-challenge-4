@@ -30,3 +30,6 @@ dist/
 # Outros arquivos comuns
 .env
 .DS_Store
+
+# Nao subir Login e Senha
+./sistema/config/config.json

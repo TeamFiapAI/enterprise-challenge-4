@@ -26,67 +26,6 @@ def get_conn():
     )
     return connection
 
-def salvar_dados_wokwi(
-    distancia_atual_cm, distancia_anterior_cm, temperatura,
-    umidade, vento_velocidade_ms, insolacao_h,
-    evaporacao_piche_mm, precipitacao_mm, data_recebimento
-):
-    conn = None
-    try:
-        conn = get_conn()
-        with conn.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO dados_wokwi (
-                    distancia_atual_cm, distancia_anterior_cm, temperatura,
-                    umidade, vento_velocidade_ms, insolacao_h,
-                    evaporacao_piche_mm, precipitacao_mm, data_recebimento
-                ) VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9)
-            """, [
-                distancia_atual_cm, distancia_anterior_cm, temperatura,
-                umidade, vento_velocidade_ms, insolacao_h,
-                evaporacao_piche_mm, precipitacao_mm, data_recebimento
-            ])
-            conn.commit()
-
-            # Captura o último ID inserido
-            cursor.execute("SELECT MAX(id) FROM dados_wokwi")
-            dados_id = cursor.fetchone()[0]
-            return dados_id
-
-    except Exception as e:
-        if conn:
-            conn.rollback()
-        raise RuntimeError(f"Erro ao salvar dados do Wokwi: {e}")
-    finally:
-        if conn:
-            conn.close()
-
-def salvar_predicao(dados_id, vazao_prevista, risco, explicabilidade=None):
-    conn = None
-    try:
-        conn = get_conn()
-        with conn.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO predicoes (
-                    dados_id, vazao_prevista, risco, explicabilidade, data_predicao
-                ) VALUES (:1, :2, :3, :4, :5)
-            """, [
-                int(dados_id),
-                float(vazao_prevista),
-                str(risco),
-                explicabilidade,
-                datetime.utcnow()
-            ])
-            conn.commit()
-            return cursor.lastrowid
-    except Exception as e:
-        if conn:
-            conn.rollback()
-        raise RuntimeError(f"Erro ao salvar predição: {e}")
-    finally:
-        if conn:
-            conn.close()
-
 def dropar_tabelas():
     print("\n=== Verificando necessidade de dropar tabelas ===")
 
@@ -193,32 +132,79 @@ def executar_insert():
         if conn:
             conn.close()
 
-def buscar_todos(tabela=None, colunas="*", ordem_por=None, sql_query=None):
-    registros = []
+def salvar_registros_fakes(registros, arquivo_sql=None):
+    """
+    Recebe registros fakes já gerados e salva no Oracle.
+    Também pode gerar arquivo SQL para log.
+    """
+    f = None
+    if arquivo_sql:
+        f = open(arquivo_sql, "w", encoding="utf-8")
+
     conn = None
     try:
         conn = get_conn()
         with conn.cursor() as cursor:
-            if sql_query:
-                cursor.execute(sql_query)
-            elif tabela:
-                sql = f"SELECT {colunas} FROM {tabela}"
-                if ordem_por:
-                    sql += f" ORDER BY {ordem_por}"
-                cursor.execute(sql)
-            else:
-                print("Erro: informe tabela ou SQL.")
-                return []
+            for r in registros:
+                cursor.execute("""
+                    INSERT INTO registros (
+                        id_maquina, id_operador, data_coleta,
+                        temperatura, umidade, potenciometro,
+                        gasAO, gasDO, alarme
+                    ) VALUES (:m, :o, :d, :t, :u, :p, :g, :gd, :a)
+                """, m=r["id_maquina"], o=r["id_operador"], d=r["data_coleta"],
+                     t=r["temperatura"], u=r["umidade"], p=r["potenciometro"],
+                     g=r["gasAO"], gd=r["gasDO"], a=r["alarme"])
 
-            col_names = [desc[0] for desc in cursor.description]
-            for row in cursor.fetchall():
-                registros.append([
-                    col.read() if hasattr(col, "read") else col for col in row
-                ])
-    except oracledb.DatabaseError as e:
-        error, = e.args
-        print(f"Erro ao buscar: {error.message}")
+                if f:
+                    operador_str = str(r["id_operador"]) if r["id_operador"] else "NULL"
+                    sql_insert = (
+                        f"INSERT INTO registros (id_maquina, id_operador, data_coleta, temperatura, umidade, "
+                        f"potenciometro, gasAO, gasDO, alarme)\n"
+                        f"VALUES ({r['id_maquina']}, {operador_str}, "
+                        f"TO_TIMESTAMP('{r['data_coleta'].strftime('%Y-%m-%d %H:%M:%S')}', 'YYYY-MM-DD HH24:MI:SS'), "
+                        f"{r['temperatura']}, {r['umidade']}, {r['potenciometro']}, {r['gasAO']}, {r['gasDO']}, {r['alarme']});\n"
+                    )
+                    f.write(sql_insert)
+
+            conn.commit()
+        print(f"{len(registros)} registros inseridos com sucesso!")
+        if arquivo_sql:
+            print(f"Script SQL salvo em '{arquivo_sql}'")
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"Erro ao salvar registros fakes: {e}")
+        raise
     finally:
         if conn:
             conn.close()
-    return registros
+        if f:
+            f.close()
+
+def inserir_registros_esp32(registros):
+    conn = None
+    try:
+        conn = get_conn()
+        with conn.cursor() as cursor:
+            for r in registros:
+                cursor.execute("""
+                    INSERT INTO registros (
+                        id_maquina, id_operador, data_coleta,
+                        temperatura, umidade, potenciometro,
+                        gasAO, gasDO, alarme
+                    ) VALUES (:m, :o, :d, :t, :u, :p, :g, :gd, :a)
+                """, m=r["id_maquina"], o=r["id_operador"], d=r["data_coleta"],
+                     t=r["temperatura"], u=r["umidade"], p=r["potenciometro"],
+                     g=r["gasAO"], gd=r["gasDO"], a=r["alarme"])
+            conn.commit()
+        print(f"{len(registros)} registros inseridos com sucesso!")
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"Erro ao inserir registros: {e}")
+        raise
+    finally:
+        if conn:
+            conn.close()

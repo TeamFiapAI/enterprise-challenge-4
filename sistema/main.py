@@ -15,7 +15,7 @@ app = FastAPI(
 
 # Rota com prefixo /dados
 app.include_router(sensor_router.router, prefix="/dados", tags=["Sensores"])
-app.include_router(maintenance_router, prefix="/manutencao", tags=["Manutenção"])
+app.include_router(maintenance_router, prefix="/manutencao", tags=["Manutenção Tabelas"])
 
 # Entry point
 if __name__ == "__main__":

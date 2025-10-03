@@ -57,7 +57,9 @@ src/
 Windows
  > python -m venv venv
  > venv\Scripts\activate
+ > cd sistema
  > pip install -r requirements.txt
+ > phyton main.py
 ```
 ![alt text](./assets/windows.png)
 
