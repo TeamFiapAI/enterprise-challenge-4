@@ -18,7 +18,7 @@ DHT dht(DHT_PIN, DHTYPE);
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 #define WIFI_SSID "Wokwi-GUEST"
 #define WIFI_PASSWORD ""
-#define SERVER_URL "http://192.168.0.107:8000/dados/"
+#define SERVER_URL "http://192.168.68.59:8000/dados/"
 
 void conectarWiFi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
