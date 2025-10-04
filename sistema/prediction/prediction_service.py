@@ -124,3 +124,37 @@ def pontuar_pulso(pulso: dict) -> dict:
         "anomalia": anom,
         "kpis_24h": kpis
     }
+
+def kpis_overview() -> dict:
+    df_raw = carregar_registros_df()
+    df = _prepare_df(df_raw)
+    if df.empty:
+        return {"last_ts": None, "overall": {"count": 0, "alarme_rate": 0.0}, "maquinas": {}}
+
+    overall = _kpis_from_df(df)
+    maquinas = {int(mid): _kpis_from_df(g) for mid, g in df.groupby("id_maquina")}
+    last_ts = df["ts"].max().isoformat()
+    return {"last_ts": last_ts, "overall": overall, "maquinas": maquinas}
+
+def kpis_da_maquina(id_maquina: int) -> dict:
+    df_raw = carregar_registros_df()
+    df = _prepare_df(df_raw)
+    g = df[df["id_maquina"] == id_maquina]
+    if g.empty:
+        return {"id_maquina": id_maquina, "count": 0, "alarme_rate": 0.0}
+    out = _kpis_from_df(g)
+    out["id_maquina"] = id_maquina
+    out["last_ts"] = g["ts"].max().isoformat()
+    return out
+
+def kpis_do_operador(id_operador: int) -> dict:
+    df_raw = carregar_registros_df()
+    df = _prepare_df(df_raw)
+    g = df[df["id_operador"] == id_operador]
+    if g.empty:
+        return {"id_operador": id_operador, "count": 0, "alarme_rate": 0.0}
+    out = _kpis_from_df(g)
+    out["id_operador"] = id_operador
+    out["last_ts"] = g["ts"].max().isoformat()
+    return out
+
