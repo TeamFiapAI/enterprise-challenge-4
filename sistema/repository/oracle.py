@@ -1,3 +1,4 @@
+import pandas as pd
 import oracledb
 import os
 import json
@@ -192,6 +193,42 @@ def inserir_registros_esp32(registros):
         if conn:
             conn.rollback()
         print(f"Erro ao inserir registros: {e}")
+        raise
+    finally:
+        if conn:
+            conn.close()
+
+def get_registros_dashboard():
+    try:
+        conn = get_conn()
+        cursor = conn.cursor()
+
+        query = """
+        SELECT
+            r.id_maquina,
+            m.nome AS NOME_MAQUINA,
+            r.id_operador,
+            o.nome AS NOME_OPERADOR,
+            r.data_coleta,
+            r.temperatura,
+            r.umidade,
+            r.potenciometro,
+            r.gasAO,
+            r.gasDO,
+            r.alarme
+        FROM registros r
+        LEFT JOIN maquinas m ON r.id_maquina = m.id_maquina
+        LEFT JOIN operadores o ON r.id_operador = o.id_operador
+        ORDER BY r.data_coleta DESC
+        """
+
+        cursor.execute(query)
+        data = cursor.fetchall()
+        columns = [desc[0] for desc in cursor.description]
+        df = pd.DataFrame(data, columns=columns)
+        return df
+    except Exception as e:
+        print(f"Erro ao buscar registros para dashboard: {e}")
         raise
     finally:
         if conn:
