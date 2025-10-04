@@ -20,9 +20,6 @@ def carregar_registros_df():
     return repo_carregar_registros_df()
 
 def _prepare_df(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Normaliza nomes e tipos esperados pelo pipeline.
-    """
     df = df.copy()
     rename_map = {}
     for c in df.columns:
@@ -54,9 +51,6 @@ def _prepare_df(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def _make_features(df: pd.DataFrame, win: str) -> pd.DataFrame:
-    """
-    Agrega por janela (ex.: 15min) e retorna uma linha por (maquina, janela).
-    """
     if df.empty:
         return pd.DataFrame()
 
@@ -81,9 +75,6 @@ def _make_features(df: pd.DataFrame, win: str) -> pd.DataFrame:
     return X
 
 def treinar_modelo_kpis():
-    """
-    Treina IsolationForest em features de janelas a partir de toda a REGISTROS.
-    """
     global modelo, scaler, colunas_modelo, df_limpo
 
     df_raw = carregar_registros_df()
@@ -130,10 +121,6 @@ def _ensure_model():
     scaler = modelo.named_steps.get("scaler")
 
 def _one_row_features_from_latest(df_maquina: pd.DataFrame) -> pd.DataFrame:
-    """
-    Recria a **última** janela de features para a máquina.
-    Busca ~1h anterior e resample para 'window', retornando a última linha.
-    """
     if df_maquina.empty:
         return pd.DataFrame()
 
@@ -167,21 +154,6 @@ def _kpis_from_df(df_maquina_24h: pd.DataFrame) -> dict:
     return k
 
 def prever_kpis(dados: dict) -> dict:
-    """
-    Entrada (um novo pulso, no mesmo espírito do seu prever_vazao):
-      dados = {
-        "id_maquina": int, "id_operador": int, "data_coleta": "ISO",
-        "temperatura": float, "umidade": float, "potenciometro": float,
-        "gasAO": float, "gasDO": float, "alarme": int
-      }
-
-    Comportamento:
-      - Garante que há modelo em disco (ou treina).
-      - Lê a base completa (sem filtro), anexa o novo ponto **em memória**
-        (o treino do modelo continua batch, mas a pontuação usa a última janela).
-      - Calcula **KPIs de 24h** para a máquina.
-      - Cria features da última janela e retorna **score/anomalia**.
-    """
     _ensure_model()
 
     df_hist = _prepare_df(carregar_registros_df())

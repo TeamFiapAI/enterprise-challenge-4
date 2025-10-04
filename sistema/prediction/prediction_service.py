@@ -24,9 +24,6 @@ def _kpis_from_df(df: pd.DataFrame) -> dict:
     return k
 
 def _one_row_features_from_latest(df_maquina: pd.DataFrame, win: str) -> pd.DataFrame:
-    """
-    Considera ~1h de histórico e resample para 'win'; retorna só a última janela.
-    """
     if df_maquina.empty:
         return pd.DataFrame()
     end_ts = df_maquina["ts"].max()
@@ -50,10 +47,6 @@ def _one_row_features_from_latest(df_maquina: pd.DataFrame, win: str) -> pd.Data
     return out.tail(1)
 
 def _carregar_maquina_periodo(id_maquina: int, start_ts: pd.Timestamp, end_ts: pd.Timestamp) -> pd.DataFrame:
-    """
-    Lê do Oracle só o período necessário para a máquina (performático).
-    Se preferir simplificar, use carregar_registros_df() e filtre em memória.
-    """
     conn = None
     try:
         conn = get_conn()
