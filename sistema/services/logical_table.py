@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 
 maquinas = [1, 2, 3, 4]
 operadores = [1, 2, 3, 4]
-start_date = datetime(2024, 1, 1)
-end_date = datetime(2025, 1, 1)
+start_date = datetime(2025, 1, 1)
+end_date = datetime(2025, 12, 31)
 delta_total = end_date - start_date
 
 def gerar_registros_fakes(qtd=1):
