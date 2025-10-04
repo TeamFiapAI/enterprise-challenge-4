@@ -70,13 +70,5 @@ umidade;temperatura;potenciometro;gas_analogico;gas_digital;alarme
 34.50;19.80;576;843;1;0
 ~~~~
 
-### 📷 Prints
-- Emitindo alarme de som e luz
-![Alarme Ligado](../../assets/esp32/alarme_ligado.png)
-
-- Alarme desligado com exemplo de temperatura e humidade
-![Temperatura e Humiade](../../assets/esp32/temperatura_e_humidade.png)
-
-
 ### Referencia
 [Wokwi](https://wokwi.com/projects/433368210236612609)
