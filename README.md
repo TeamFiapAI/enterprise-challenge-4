@@ -59,8 +59,9 @@ Windows
  > venv\Scripts\activate
  > cd sistema
  > pip install -r requirements.txt
- > phyton main.py
+ > python start.py
 ```
 ![alt text](./assets/windows.png)
 
-### Abra navegador: http://localhost:8000/docs
+### Sistema Python e Modelo ML: http://localhost:8000/docs
+### DashBoard Streamlit: http://localhost:8501/
