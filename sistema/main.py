@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import uvicorn
 from routers import sensor_router
 from routers.maintenance_router import router as maintenance_router
+from prediction.model import treinar_modelo_kpis
 
 app = FastAPI(
     title="Enterprise Challenge - Sprint 4",
@@ -12,6 +13,11 @@ app = FastAPI(
     " vamos “costurar” tudo em um MVP integrado, com ênfase em observabilidade e reprodutibilidade.",
     version="1.0.0"
 )
+
+@app.on_event("startup")
+def startup_event():
+    info = treinar_modelo_kpis()
+    print("[ML] Modelo treinado no startup:", info)
 
 # Rota com prefixo /dados
 app.include_router(sensor_router.router, prefix="/dados", tags=["Sensores"])

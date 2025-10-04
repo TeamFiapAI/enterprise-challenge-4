@@ -1,6 +1,7 @@
 import oracledb
 import os
 import json
+import pandas as pd
 
 BASE_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 CONFIG_PATH = os.path.join(BASE_PATH, "config", "config.json")
@@ -131,9 +132,13 @@ def executar_insert():
         if conn:
             conn.close()
 
-def salvar_registros_fakes(registros):
+def salvar_registros_fakes(registros, dump_sql_path: str | None = None):
     conn = None
+    f = None
     try:
+        if dump_sql_path:
+            f = open(dump_sql_path, "a", encoding="utf-8")
+
         conn = get_conn()
         with conn.cursor() as cursor:
             for r in registros:
@@ -143,22 +148,26 @@ def salvar_registros_fakes(registros):
                         temperatura, umidade, potenciometro,
                         gasAO, gasDO, alarme
                     ) VALUES (:m, :o, :d, :t, :u, :p, :g, :gd, :a)
-                """, m=r["id_maquina"], o=r["id_operador"], d=r["data_coleta"],
-                     t=r["temperatura"], u=r["umidade"], p=r["potenciometro"],
-                     g=r["gasAO"], gd=r["gasDO"], a=r["alarme"])
+                """,
+                m=r["id_maquina"], o=r["id_operador"], d=r["data_coleta"],
+                t=r["temperatura"], u=r["umidade"], p=r["potenciometro"],
+                g=r["gasAO"], gd=r["gasDO"], a=r["alarme"])
 
-                if f:
-                    operador_str = str(r["id_operador"]) if r["id_operador"] else "NULL"
+                if f is not None:
+                    operador_str = "NULL" if r["id_operador"] is None else str(r["id_operador"])
+                    ts_str = r["data_coleta"].strftime('%Y-%m-%d %H:%M:%S') \
+                             if hasattr(r["data_coleta"], "strftime") else str(r["data_coleta"])
                     sql_insert = (
-                        f"INSERT INTO registros (id_maquina, id_operador, data_coleta, temperatura, umidade, "
-                        f"potenciometro, gasAO, gasDO, alarme)\n"
+                        "INSERT INTO registros (id_maquina, id_operador, data_coleta, temperatura, umidade, "
+                        "potenciometro, gasAO, gasDO, alarme)\n"
                         f"VALUES ({r['id_maquina']}, {operador_str}, "
-                        f"TO_TIMESTAMP('{r['data_coleta'].strftime('%Y-%m-%d %H:%M:%S')}', 'YYYY-MM-DD HH24:MI:SS'), "
-                        f"{r['temperatura']}, {r['umidade']}, {r['potenciometro']}, {r['gasAO']}, {r['gasDO']}, {r['alarme']});\n"
+                        f"TO_TIMESTAMP('{ts_str}', 'YYYY-MM-DD HH24:MI:SS'), "
+                        f"{r['temperatura']}, {r['umidade']}, {r['potenciometro']}, "
+                        f"{r['gasAO']}, {r['gasDO']}, {r['alarme']});\n"
                     )
                     f.write(sql_insert)
 
-            conn.commit()
+        conn.commit()
         print(f"{len(registros)} registros inseridos com sucesso!")
     except Exception as e:
         if conn:
@@ -168,8 +177,9 @@ def salvar_registros_fakes(registros):
     finally:
         if conn:
             conn.close()
-        if f:
+        if f is not None and not f.closed:
             f.close()
+
 
 def inserir_registros_esp32(registros):
     conn = None
@@ -192,6 +202,38 @@ def inserir_registros_esp32(registros):
         if conn:
             conn.rollback()
         print(f"Erro ao inserir registros: {e}")
+        raise
+    finally:
+        if conn:
+            conn.close()
+
+def carregar_registros_df():
+    conn = None
+    try:
+        conn = get_conn()
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT 
+                    id_registro,
+                    id_maquina,
+                    id_operador,
+                    data_coleta,
+                    temperatura,
+                    umidade,
+                    potenciometro,
+                    gasAO,
+                    gasDO,
+                    alarme
+                FROM registros
+                ORDER BY data_coleta
+            """)
+            colunas = [c[0].lower() for c in cursor.description]
+            rows = cursor.fetchall()
+            df = pd.DataFrame(rows, columns=colunas)
+        print(f"{len(df)} registros carregados com sucesso em DataFrame!")
+        return df
+    except Exception as e:
+        print(f"Erro ao carregar registros em DataFrame: {e}")
         raise
     finally:
         if conn:
