@@ -99,3 +99,23 @@ Windows
 
 - Exemplo de grafico
 ![heatmap](./assets/heatmap.png)
+
+
+### Diagrama
+![diagrama](./assets/industria.drawio.png)
+
+1. OPERADORES
+   - Responsáveis pelo manuseio das máquinas.
+   - Acionam, monitoram e mantêm o equipamento.
+2. MÁQUINAS
+   - Cada máquina possui um `ESP32`, conectado à rede para comunicação com a `Cloud`.
+   - O `ESP32` monitora sensores de **temperatura**, **umidade**, **gases** e **alarmes**, detectando anomalias em tempo real.
+3. CLOUD
+   - Recebe dados do `ESP32` via `HTTP`.
+   - AWS Lambda (`Python`) processa os dados: Valida e transforma os registros.
+   - Persiste as informações no `RDS PostgreSQL`.
+   - Garante armazenamento centralizado e seguro.
+4. DASHBOARD
+   - Desenvolvido em `Streamlit` (`Python`).
+   - Fornece alertas e relatórios processados na `Cloud`.
+   - Acesso para gestores da indústria, permitindo tomada de decisão rápida.
