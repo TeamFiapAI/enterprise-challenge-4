@@ -31,11 +31,39 @@
 ## 🗂️ Estrutura de Pastas
 
 ```
-src/
-├── sistema/
-├── simulador/
-├── assets/
-└── 
+📁/
+├──📄README.md
+|
+├──📁assets/      
+|
+├──📁esp32/
+│   ├──📄README.md
+│   ├──diagram.json    → Formato JSON, que renderiza o Wokwi.
+│   ├──libraries.txt   → Bibliotecas utilizadas no projeto.
+│   ├──📁src/
+│   ├──   ├──main.ino  → Codigo C++ da placa ESP32.
+|
+├──📁sistema/
+|   ├──📁config/       → informacoes de login e senha do BD
+|
+|   ├──📁dashboard/    →  📊 streamlit e seus graficos
+|
+|   ├──📁models        →  ml
+|
+|   ├──📁prediction    →  ml
+|
+|   ├──📁repository    → consultas oracle 
+|
+|   ├──📁routers       → rotas da api
+|
+|   ├──📁scripts       → scripts do banco (criar tabela, inserir, dropar)
+|
+|   ├──📁services      → regras para alimentar a base de dados / gerar mock
+|
+|   ├──main.py          → toda parte de python > 🖥️uvicorn
+|   ├──requeriments.txt → dependencias do projeto
+|   ├──start.py         → inicia o 🖥️uvicorn e 📊streamlit 
+
 ```
 
 ---
@@ -61,7 +89,13 @@ Windows
  > pip install -r requirements.txt
  > python start.py
 ```
-![alt text](./assets/windows.png)
+![Comandos no Terminal](./assets/windows.png)
 
 ### Sistema Python e Modelo ML: http://localhost:8000/docs
+![Servico em Python](./assets/swagger.png)
+
 ### DashBoard Streamlit: http://localhost:8501/
+![DashBoard Streamlit](./assets/streamlit.png)
+
+- Exemplo de grafico
+![heatmap](./assets/heatmap.png)
